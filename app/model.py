@@ -1,22 +1,43 @@
-from sqlalchemy import Boolean, Column, ForeignKey, INTEGER, VARCHAR, DATE, TIMESTAMP, FLOAT
+from sqlalchemy import Boolean, Column, ForeignKey, INTEGER, VARCHAR, DATE, TIMESTAMP, FLOAT, DATETIME
 from sqlalchemy.dialects.mysql import TINYINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from datetime import datetime
 
 
+# 계정 정보
 class admin(Base):
     __tablename__ = "admin"
     id = Column(INTEGER, primary_key=True, nullable=False, autoincrement=True, unique=True)
-    userId = Column(VARCHAR(50), nullable=False)
+    user_id = Column(VARCHAR(50), nullable=False)
+    hased_pw = Column(VARCHAR(50), nullable=False)
+    username = Column(VARCHAR(50), nullable=False)
+    phone = Column(VARCHAR(50), nullable=False)
+    email = Column(VARCHAR(100), nullable=False)
+    created_at = Column(DATETIME, default=datetime.now)
+    
+    # 컬럼 간의 연결(ForeignKey)
+    # owner_id = Column(Integer, ForeignKey("users.id"))
+    # 속성과 연관된 다른 테이블의 속성값 연결
+    # items = relationship("Item", back_populates="owner")
 
+class guest(Base):
+    __tablename__ = "guest"
+    id = Column(INTEGER, primary_key=True, nullable=False, autoincrement=True, unique=True)
+    p_id = Column(VARCHAR(50), nullable=False)
+    hased_pw = Column(VARCHAR(50), nullable=False)
+    created_at = Column(DATETIME, default=datetime.now)
+    
+
+# 대상자(환자) 정보
 class p_info(Base):
     __tablename__ = "p_info"
     id = Column(INTEGER, nullable=False, autoincrement=True, primary_key=True, unique=True)
     initial = Column(VARCHAR(45), nullable=False)
     p_id = Column(VARCHAR(50), nullable=False)
-    birth = Column(DATE, nullable=False)
+    birth = Column(VARCHAR(10), nullable=False)
     sex = Column(TINYINT, nullable=False)
     weight = Column(FLOAT, nullable=False)
     height = Column(FLOAT, nullable=False)
@@ -27,10 +48,29 @@ class p_info(Base):
     alcohol = Column(TINYINT, nullable=False)
     exercise = Column(TINYINT, nullable=False)
     created_at = Column(TIMESTAMP)
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "initial": self.initial,
+            "p_id": self.p_id,
+            "birth": self.birth,
+            "sex": self.sex,
+            "weight": self.weight,
+            "height": self.height,
+            "site": self.site,
+            "op": self.op,
+            "hx": self.hx,
+            "smoke": self.smoke,
+            "alcohol": self.alcohol,
+            "exercise": self.exercise,
+            "created_at": self.created_at.isoformat(),
+        }
 
     # items = relationship("Item", back_populates="owner")  # 데이터베이스간 연결 설정
 
 
+# 설문 조사
 class sv_womac(Base):
     __tablename__ = "sv_womac"
     code_id = Column(VARCHAR(50), primary_key=True, unique=True, nullable=False)
@@ -38,9 +78,6 @@ class sv_womac(Base):
     middle_code = Column(VARCHAR(100))
     lastcode = Column(VARCHAR(100))
     description = Column(VARCHAR(500))
-
-    # owner = relationship("User", back_populates="items")
-
 
 class sv_koos(Base):
     __tablename__ = "sv_koos"
@@ -50,7 +87,6 @@ class sv_koos(Base):
     lastcode = Column(VARCHAR(100))
     description = Column(VARCHAR(500))
 
-
 class sv_ikdc(Base):
     __tablename__ = "sv_ikdc"
     code_id = Column(VARCHAR(50), primary_key=True, unique=True, nullable=False)
@@ -59,7 +95,6 @@ class sv_ikdc(Base):
     lastcode = Column(VARCHAR(100))
     description = Column(VARCHAR(500))
 
-
 class sv_ls(Base):
     __tablename__ = "sv_ls"
     code_id = Column(VARCHAR(50), primary_key=True, unique=True, nullable=False)
@@ -67,7 +102,6 @@ class sv_ls(Base):
     middle_code = Column(VARCHAR(100))
     lastcode = Column(VARCHAR(100))
     description = Column(VARCHAR(500))
-
 
 class sv_etc(Base):
     __tablename__ = "sv_etc"
@@ -78,6 +112,7 @@ class sv_etc(Base):
     description = Column(VARCHAR(500))
 
 
+# 설문 조사 결과
 class result(Base):
     __tablename__ = "result"
     id = Column(INTEGER, primary_key=True, nullable=False, autoincrement=True)

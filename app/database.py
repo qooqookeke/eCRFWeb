@@ -1,21 +1,20 @@
-import os
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative  import declarative_base
-import contextlib
-from dotenv import load_dotenv
-load_dotenv()
+from sqlalchemy.ext.declarative import declarative_base
+from config import Config
 
-DB_URL = os.getenv('DB_URL')
+DB_URL = Config.DB_URL
 
-engine = create_engine(DB_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_async_engine(DB_URL, echo=True)
+
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
 Base = declarative_base()
 
-@contextlib.contextmanager
-def get_db():
-	db = SessionLocal()    
-	try:        
-		yield db    
-	finally:        
-		db.close()
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session

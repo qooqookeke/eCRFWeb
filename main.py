@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI
 import uvicorn
 
@@ -10,10 +9,10 @@ from starlette.responses import FileResponse
 from starlette.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
-from app.router import pInfo_create, pInfo_list, pId_get, pInfo_update, pId_delete
+from patient_info.info_router import router as info_router
+
 
 load_dotenv()
-
 
 
 app = FastAPI()
@@ -32,11 +31,7 @@ app.add_middleware(
 )
 
 
-app.include_router(pInfo_create.router)
-app.include_router(pInfo_list.router)
-app.include_router(pId_get.router)
-app.include_router(pInfo_update.router)
-app.include_router(pId_delete.router)
+app.include_router(info_router)
 
 
 
